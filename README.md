@@ -5,5 +5,5 @@
 <h2>collaborators:</h2>
 <br/>
 
-+ ![@Nadira3](https://www.github.com/Nadira3)
-+	![@HazelDaniel](https://www.github.com/HazelDaniel)
++ [@Nadira3](https://www.github.com/Nadira3)
++	[@HazelDaniel](https://www.github.com/HazelDaniel)
