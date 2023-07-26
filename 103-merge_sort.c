@@ -60,7 +60,7 @@ void merge(int *array, int low, int mid, int high)
 		array[k++] = left[i++];
 	while (j < n2)
 		array[k++] = right[j++];
-	printf("[done]: "), print_sequence(array + low, k - low);
+	printf("[Done]: "), print_sequence(array + low, k - low);
 	printf("\n");
 	_fr_ptr((void **)&right), _fr_ptr((void **)&left);
 }
