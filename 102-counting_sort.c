@@ -1,77 +1,112 @@
 #include "sort.h"
-#include "utils.c"
 
 /**
- * alloc_init - a function that does
- * the work of malloc and initializes all it's element to zero
- * @nmemb: the number of elements to fill
- * @size: the size of each element in memory
- * Return: void *
- **/
-void *alloc_init(int nmemb, int size)
+ * min_max - finds the minimum or maximum value
+ * in an array
+ * @array: search array
+ * @size: size of array
+ * @flag: indicator for min or max
+ * Return: minimum value or maximum value
+ */
+int min_max(int *array, size_t size, int flag)
 {
-	int i;
-	void *res;
-	char *tmp_res;
+	int min = array[0], i, max = array[0];
 
-	res = malloc(nmemb * size);
-	if (!res)
-		return (0);
+	for (i = 1; i < (int)size; i++)
+		if (array[i] < min)
+			min = array[i];
 
-	tmp_res = res;
-
-	for (i = 0; i < size; i++)
-		tmp_res[i] = 0;
-
-	return (res);
+	for (i = 1; i < (int)size; i++)
+		if (array[i] > max)
+			max = array[i];
+	return (flag ? max : min);
 }
 
 /**
- * counting_sort - a function that sorts an input array
- * using a non-comparation sorting algotithm called
- * counting sort
- * @array: the input array
- * @size: the size of the input array - N
+ * array_init - initializes an array
+ * @index: index array
+ * @count: count array
+ * @max: maximum value in original array
+ * Return: size of index and count array
+ */
+int array_init(int **index, int **count, int max)
+{
+	size_t i, j = 0;
+
+	for (i = 0; (int)i <= max; i++, j++)
+	{
+		(*count)[j] = 0;
+		(*index)[j] = i;
+	}
+	return (j);
+}
+
+/**
+ * count_step - counts the number of each index
+ * in array
+ * @count: count array
+ * @index_size: size of count array
+ */
+void count_step(int **count, int index_size)
+{
+	int k;
+
+	for (k = 0; k < index_size; k++)
+	{
+		if (!k)
+			(*count)[k] = (*count)[k];
+		else
+			(*count)[k] = (*count)[k] + (*count)[k - 1];
+	}
+}
+
+/**
+ * counting_sort - a function that sorts an
+ * array using counting sort
+ * @array: the address of the array
+ * @size: the size of the array
  * Return: void
  **/
 void counting_sort(int *array, size_t size)
 {
-	int i = 0, j = 0, high, *result = NULL, *counts = NULL;
+	int max, array_range, num, *index, *count, *position;
+	size_t i, j = 0, k, index_size;
 
-	high = find_max(array, size);
-	/*
-	 * below is  to make sure that the property of counting sort
-	 * algorithm holds true prior to the iteration
-	 * - the INT_MIN is returned if a negative value is found
-	 *   in the array
-	 */
-	if (high == INT_MIN || size <= 1)
+	if (!array || size <= 1)
 		return;
-	counts = alloc_init(high + 1, sizeof(int));
-	result = malloc(size * sizeof(int));
 
-	for (i = 0; (size_t)i < size; i++)
-		counts[array[i]] += 1;
+	max = min_max(array, size, 1);
+	array_range = max + 1;
 
-	for (j = 0; j <= high; j++)
+	index = malloc(sizeof(int) * array_range);
+	count = malloc(sizeof(int) * array_range);
+	position = malloc(sizeof(int) * size);
+	if (!index || !count || !position)
+		return;
+
+	index_size = array_init(&index, &count, max);
+	for (j = 0; j < size; j++)
 	{
-		if (j)
-			counts[j] += counts[j - 1], printf(", %d", counts[j]);
-		else
-			printf("%d", counts[j]);
+		num = array[j];
+		for (k = 0; k < index_size; k++)
+			if (num == index[k])
+				count[k] += 1;
 	}
-	if (j)
-		printf("\n");
-
-	for (j = 0; (size_t)j < size; j++)
+	count_step(&count, index_size);
+	print_array(count, index_size);
+	for (j = 0; j < size; j++)
 	{
-		result[counts[array[j]] - 1] = array[j];
-		counts[array[j]] -= 1;
+		num = array[j];
+		for (k = 0; k < index_size; k++)
+		{
+			if (num == index[k])
+			{
+				position[count[k] - 1] = num;
+				count[k] -= 1;
+			}
+		}
 	}
-
-	for (i = 0; (size_t)i < size; i++)
-		array[i] = result[i];
-
-	free(result);
-	free(counts);
+	for (i = 0; i < size; i++)
+		array[i] = position[i];
+	free(count), free(index), free(position);
 }
